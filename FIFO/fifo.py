@@ -36,7 +36,7 @@ orden	= ["T161","T162","T164","T163"]
 nuevopedido = 0
 cont = 0
 resultado_FIFO_CD = pd.DataFrame(columns=["Deno","Centro","Codigo","Cantidad","Fecha","Lugar","Clas"])
-for x in tqdm(codtras):
+for x in codtras:
 	#Disponibilidad del material/ probar con Comprehensions
 	#Usando Filter
 	#dispo 1 = list(filter(lambda t: t[0] == x[0], dispo))
@@ -66,6 +66,7 @@ for x in tqdm(codtras):
 								if ped < dis:
 									cont = cont + 1 
 									resul1 = pd.DataFrame({'Deno': str(i[0]), 'Centro':str(z), 'Codigo':x[0], 'Cantidad':ped, 'Fecha':dispo1[d][1], 'Lugar':str(dispo1[d][3]),'Clas':str(y) }, index= [cont])
+									print(f"{resul1}")
 									resultado_FIFO_CD = pd.concat([resultado_FIFO_CD, resul1], ignore_index=True)
 									#print (str(i[0]) + ";" + str(z) + ";" + str(x[0]) + ";" + str(ped) + ";" + str(dispo1[0][1]) + ";" + str(dispo1[0][3]))
 									dis = dis - ped
@@ -75,6 +76,7 @@ for x in tqdm(codtras):
 								elif ped >= dis:
 									cont = cont + 1 
 									resul1 = pd.DataFrame({'Deno': str(i[0]), 'Centro':str(z), 'Codigo':x[0], 'Cantidad':dis, 'Fecha':dispo1[d][1], 'Lugar':str(dispo1[d][3]), 'Clas':str(y)}, index= [cont])
+									print(f"{resul1}")
 									resultado_FIFO_CD = pd.concat([resultado_FIFO_CD, resul1], ignore_index=True)
 									#print (str(i[0]) + ";" + str(z) + ";" + str(x[0]) + ";" + str(dis) + ";" + str(dispo1[0][1]) + ";" + str(dispo1[0][3]))
 									ped = ped - dis
