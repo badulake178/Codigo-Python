@@ -15,7 +15,7 @@ porcentaje_fresco = [["T161",0.2020],["T162",0.3110],["T163",0.3030],["T164",0.1
 #porcentaje_cecina = [["T161",0.2020],["T162",0.3610],["T163",0.2520],["T164",0.1840]]
 kilos_por_pallet_cecina = 750
 print("Se inicia Proceso de FIFO CDA")
-x = datetime.datetime(2026, 2, 18)
+x = datetime.datetime(2026,2,18)
 #fechahoy = "26" + "." + x.strftime("%m") + "." + x.strftime("%Y")
 fechahoy = x.strftime("%d") + "." + x.strftime("%m") + "." + x.strftime("%Y")
 archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
@@ -36,7 +36,7 @@ orden	= ["T161","T162","T164","T163"]
 nuevopedido = 0
 cont = 0
 resultado_FIFO_CD = pd.DataFrame(columns=["Deno","Centro","Codigo","Cantidad","Fecha","Lugar","Clas"])
-for x in codtras:
+for x in tqdm(codtras):
 	#Disponibilidad del material/ probar con Comprehensions
 	#Usando Filter
 	#dispo 1 = list(filter(lambda t: t[0] == x[0], dispo))
@@ -66,7 +66,6 @@ for x in codtras:
 								if ped < dis:
 									cont = cont + 1 
 									resul1 = pd.DataFrame({'Deno': str(i[0]), 'Centro':str(z), 'Codigo':x[0], 'Cantidad':ped, 'Fecha':dispo1[d][1], 'Lugar':str(dispo1[d][3]),'Clas':str(y) }, index= [cont])
-									print(f"{resul1}")
 									resultado_FIFO_CD = pd.concat([resultado_FIFO_CD, resul1], ignore_index=True)
 									#print (str(i[0]) + ";" + str(z) + ";" + str(x[0]) + ";" + str(ped) + ";" + str(dispo1[0][1]) + ";" + str(dispo1[0][3]))
 									dis = dis - ped
@@ -76,7 +75,6 @@ for x in codtras:
 								elif ped >= dis:
 									cont = cont + 1 
 									resul1 = pd.DataFrame({'Deno': str(i[0]), 'Centro':str(z), 'Codigo':x[0], 'Cantidad':dis, 'Fecha':dispo1[d][1], 'Lugar':str(dispo1[d][3]), 'Clas':str(y)}, index= [cont])
-									print(f"{resul1}")
 									resultado_FIFO_CD = pd.concat([resultado_FIFO_CD, resul1], ignore_index=True)
 									#print (str(i[0]) + ";" + str(z) + ";" + str(x[0]) + ";" + str(dis) + ";" + str(dispo1[0][1]) + ";" + str(dispo1[0][3]))
 									ped = ped - dis
@@ -141,7 +139,7 @@ for s in tqdm(cant_total_palet):
 nuevostock = []
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
 dispo 			= dispo.to_numpy().tolist()
-fecha_actual = datetime.datetime.now().date()
+fecha_actual = datetime.datetime(2026,2,18).date()
 print("Nuevo Stock descontanto Traspasos")
 for j in tqdm(dispo):
 	if j[3] =="STOCK":		
@@ -375,13 +373,12 @@ if not os.path.exists("FIFO"):
 
 
 writer_final = pd.ExcelWriter(nombrearchivo_final, engine='openpyxl')
-
-resultado_FIFO_CD.to_excel(writer_final,sheet_name='FIFO CDA', index=False)
+resultado_FIFO_CD.to_excel(writer_final, sheet_name='FIFO CDA', index=False)
 descuento_DDA48_df.to_excel(writer_final,sheet_name='DESCUENTO DD48', index=False)
 emp_final_df.to_excel(writer_final, sheet_name='EMPUJES', index=False)
 resultado_suc_sat.to_excel(writer_final,sheet_name='FIFO SUC SAT', index=False)
 cant_total_palet.to_excel(writer_final,sheet_name='CANT PALLET', index=False)
-writer_final.book.save(writer_final)
+writer_final.book.save(nombrearchivo_final)
 
 root = Tk()
 frameCnt = 24
