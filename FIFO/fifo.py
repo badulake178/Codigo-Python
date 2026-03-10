@@ -18,7 +18,8 @@ print("Se inicia Proceso de FIFO CDA")
 x = datetime.datetime(2026,2,18)
 #fechahoy = "26" + "." + x.strftime("%m") + "." + x.strftime("%Y")
 fechahoy = x.strftime("%d") + "." + x.strftime("%m") + "." + x.strftime("%Y")
-archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
+#archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
+archivo         = "FIFO/FIFO " + fechahoy + " databricks.xlsx"
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
 pedido 			= pd.read_excel(archivo,sheet_name='PEDIDO')
 codtras 		= pd.read_excel(archivo,sheet_name='CODTRAS')
@@ -35,23 +36,30 @@ clas 	= ["COB","SPMK B","SPMK A"]
 orden	= ["T161","T162","T164","T163"]
 nuevopedido = 0
 cont = 0
+#contable = 0
+cantidad_while = 0
 resultado_FIFO_CD = pd.DataFrame(columns=["Deno","Centro","Codigo","Cantidad","Fecha","Lugar","Clas"])
-for x in tqdm(codtras):
+for x in codtras:
 	#Disponibilidad del material/ probar con Comprehensions
 	#Usando Filter
-	#dispo 1 = list(filter(lambda t: t[0] == x[0], dispo))
 	dispo1 = [t for t in dispo if t[0] == x[0]]
+	
+	#print(f"disponible: {len(dispo1)} {x[0]}")
 	for z in orden:
 		for y in clas:
 			for i in pedido:
 				if i[1] == z and i[2] == y and i[3] == x[0]:
+					
 					pedido1 = [i[0],i[1],i[2],i[3],i[4]]
 					if pedido1[4] > 0:
 						ped 	= pedido1[4]
 						if len(dispo1) == 0:
 							continue
 						d = 0
-						for di in dispo1:
+						for di in dispo1: # No cuadra con el databricks
+							
+							#contable = contable + int(len(dispo1))
+							#print(f"disponible_auxiliar: {contable} {di}")
 							if pedido1[2] == "SPMK B" and di[2] == "COB":
 								d = d + 1
 								continue
@@ -62,7 +70,8 @@ for x in tqdm(codtras):
 								d = d + 1
 								continue	
 							dis 	= dispo1[d][4]
-							while ped > 0:	
+							while ped > 0:
+								cantidad_while += 1
 								if ped < dis:
 									cont = cont + 1 
 									resul1 = pd.DataFrame({'Deno': str(i[0]), 'Centro':str(z), 'Codigo':x[0], 'Cantidad':ped, 'Fecha':dispo1[d][1], 'Lugar':str(dispo1[d][3]),'Clas':str(y) }, index= [cont])
@@ -89,6 +98,7 @@ for x in tqdm(codtras):
 									else:
 										dis 	= dispo1[d][4]
 							break
+print(cantidad_while)
 
 #Calculo palet congelado REFRIGERADO y CONGELADO 
 print("Se inicia proceso de calculo pallet Regrigerado y Congelado")
