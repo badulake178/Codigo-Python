@@ -20,8 +20,14 @@ x = datetime.datetime(2026,2,18)
 fechahoy = x.strftime("%d") + "." + x.strftime("%m") + "." + x.strftime("%Y")
 #archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
 archivo         = "FIFO/FIFO " + fechahoy + " databricks.xlsx"
-dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
+
+# [0] Material (vdisp_cod_material), [1] Cad./FPC (vdisp_fecaduc_feprefercons), [2] CLAS (vdisp_clasificacion), [3] lugar (vdisp_lugar), [4] Total (vdisp_total)
+dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE') 
+
+# [0] deno traspa, [1] Centro, [2] DENO, [3] Cod, [4] Total
 pedido 			= pd.read_excel(archivo,sheet_name='PEDIDO')
+
+# [0] Cod
 codtras 		= pd.read_excel(archivo,sheet_name='CODTRAS')
 paletizado		= pd.read_excel(archivo,sheet_name='PALETIZADO')
 bd_mat			= pd.read_excel(archivo,sheet_name='BD MATERIALES')
@@ -36,7 +42,7 @@ clas 	= ["COB","SPMK B","SPMK A"]
 orden	= ["T161","T162","T164","T163"]
 nuevopedido = 0
 cont = 0
-#contable = 0
+contable = 0
 cantidad_while = 0
 resultado_FIFO_CD = pd.DataFrame(columns=["Deno","Centro","Codigo","Cantidad","Fecha","Lugar","Clas"])
 for x in codtras:
@@ -56,10 +62,10 @@ for x in codtras:
 						if len(dispo1) == 0:
 							continue
 						d = 0
-						for di in dispo1: # No cuadra con el databricks
-							
-							#contable = contable + int(len(dispo1))
-							#print(f"disponible_auxiliar: {contable} {di}")
+
+						# di = [0] Material (vdisp_cod_material), [1] Cad./FPC (vdisp_fecaduc_feprefercons), [2] CLAS (vdisp_clasificacion), [3] lugar (vdisp_lugar), [4] Total (vdisp_total)
+						for di in dispo1:
+							# Revisar la claisificacion del DISPONIBLE Y PEDIDO
 							if pedido1[2] == "SPMK B" and di[2] == "COB":
 								d = d + 1
 								continue
@@ -70,6 +76,7 @@ for x in codtras:
 								d = d + 1
 								continue	
 							dis 	= dispo1[d][4]
+							contable +=1
 							while ped > 0:
 								cantidad_while += 1
 								if ped < dis:
@@ -392,7 +399,7 @@ writer_final.book.save(nombrearchivo_final)
 
 root = Tk()
 frameCnt = 24
-frames = [PhotoImage(file="FIFO/PYTHON/carlton-dance-wild.gif",format = 'gif -index %i' %(i)) for i in range(frameCnt)]
+frames = [PhotoImage(file="C:\Users\ASUS UX325DEA-KG325T\Documents\GitHub\C-digo-Python\FIFO\Utils\cargando.gif",format = 'gif -index %i' %(i)) for i in range(frameCnt)]
 def update(ind):
 
     frame = frames[ind]
