@@ -35,6 +35,9 @@ clas 	= ["COB","SPMK B","SPMK A"]
 orden	= ["T161","T162","T164","T163"]
 nuevopedido = 0
 cont = 0
+
+#====================== RESULTADO FIFO CDA ===========================================================
+
 resultado_FIFO_CD = pd.DataFrame(columns=["Deno","Centro","Codigo","Cantidad","Fecha","Lugar","Clas"])
 for x in tqdm(codtras):
 	#Disponibilidad del material/ probar con Comprehensions
@@ -90,7 +93,9 @@ for x in tqdm(codtras):
 										dis 	= dispo1[d][4]
 							break
 
-#Calculo palet congelado REFRIGERADO y CONGELADO 
+
+# ================Calculo palet congelado REFRIGERADO y CONGELADO =========================================================
+
 print("Se inicia proceso de calculo pallet Regrigerado y Congelado")
 resultado_FIFO_CD 						= resultado_FIFO_CD.to_numpy().tolist()
 estado 							= ["REFRIGERADO","CONGELADO"]
@@ -121,7 +126,8 @@ for s in tqdm(orden):
 					vars()[pallet_por_estado]= round(vars()[pallet_por_estado] + palet_mat,2)
 					vars()[kilos_por_estado]= round(vars()[kilos_por_estado] + kilos_mat,2)
 	cant_total_palet.append([s,[cant_pallet_CONGELADO,kilos_pallet_CONGELADO],[cant_pallet_REFRIGERADO,kilos_pallet_REFRIGERADO]])
-#calculo pallet Cecina
+
+# ================== CALCULO PALLET CECINA =======================================================================================
 print("Se inicia proceso de calculo pallet Cecina")
 #print(cant_total_palet)
 for s in tqdm(cant_total_palet):
@@ -135,7 +141,7 @@ for s in tqdm(cant_total_palet):
 	pallet_total_cecina = round(kilos_cecina_total / kilos_por_pallet_cecina,2)			
 	s.insert(4,[pallet_total_cecina,kilos_cecina_total])
 #Cantidad de pallet y kilos por sucursal
-#Calculo nuevo stock descontando traspasos
+#=========== CALCULO NUEVO STOCK DESCONTANDO TRASPASOS ===================================================================
 nuevostock = []
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
 dispo 			= dispo.to_numpy().tolist()
@@ -150,6 +156,8 @@ for j in tqdm(dispo):
 		nuevodisponible = j[4] - sumadescuento
 		if nuevodisponible > 0:
 			nuevostock.append(["deno",j[0],j[1],nuevodisponible])
+
+# ============== NUEVO STOCK DESCONTANTO DDA 48HRS =======================================================================
 print("Nuevo Stock descontanto DDA 48hrs")
 descuento_DDA48 = []
 #Descuento DDA 48 

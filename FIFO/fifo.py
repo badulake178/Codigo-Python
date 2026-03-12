@@ -19,7 +19,8 @@ x = datetime.datetime(2026,2,18)
 #fechahoy = "26" + "." + x.strftime("%m") + "." + x.strftime("%Y")
 fechahoy = x.strftime("%d") + "." + x.strftime("%m") + "." + x.strftime("%Y")
 #archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
-archivo         = "FIFO/FIFO " + fechahoy + " databricks.xlsx"
+#archivo         = "FIFO/FIFO " + fechahoy + " databricks.xlsx"
+archivo = r"C:\Users\ASUS UX325DEA-KG325T\Documents\FIFO 18.02.2026 databricks.xlsx"
 
 # [0] Material (vdisp_cod_material), [1] Cad./FPC (vdisp_fecaduc_feprefercons), [2] CLAS (vdisp_clasificacion), [3] lugar (vdisp_lugar), [4] Total (vdisp_total)
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE') 
@@ -399,7 +400,7 @@ writer_final.book.save(nombrearchivo_final)
 
 root = Tk()
 frameCnt = 24
-frames = [PhotoImage(file="C:\Users\ASUS UX325DEA-KG325T\Documents\GitHub\C-digo-Python\FIFO\Utils\cargando.gif",format = 'gif -index %i' %(i)) for i in range(frameCnt)]
+frames = [PhotoImage(file=r"\Utils\cargando.gif",format = 'gif -index %i' %(i)) for i in range(frameCnt)]
 def update(ind):
 
     frame = frames[ind]
