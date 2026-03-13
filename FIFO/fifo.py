@@ -30,7 +30,7 @@ pedido 			= pd.read_excel(archivo,sheet_name='PEDIDO')
 
 # [0] Cod
 codtras 		= pd.read_excel(archivo,sheet_name='CODTRAS')
-paletizado		= pd.read_excel(archivo,sheet_name='PALETIZADO')
+paletizado		= pd.read_excel(archivo,sheet_name='PALETIZADO') # cod_material, cant_paletizado
 bd_mat			= pd.read_excel(archivo,sheet_name='BD MATERIALES')
 dda_48			= pd.read_excel(archivo,sheet_name='DDA 48')
 codtras 		= codtras.to_numpy().tolist()
@@ -43,16 +43,18 @@ clas 	= ["COB","SPMK B","SPMK A"]
 orden	= ["T161","T162","T164","T163"]
 nuevopedido = 0
 cont = 0
-contable = 0
-cantidad_while = 0
+
+# ======================= RESULTADO FIFO CDA ===========================================================
+# depende del orden de disponible (codigo y fecha caducidad)
 resultado_FIFO_CD = pd.DataFrame(columns=["Deno","Centro","Codigo","Cantidad","Fecha","Lugar","Clas"])
 for x in codtras:
 	#Disponibilidad del material/ probar con Comprehensions
 	#Usando Filter
 	dispo1 = [t for t in dispo if t[0] == x[0]]
 	
-	#print(f"disponible: {len(dispo1)} {x[0]}")
+	# Sucursales = z
 	for z in orden:
+		# y = SPMK A, SPMK B, COB
 		for y in clas:
 			for i in pedido:
 				if i[1] == z and i[2] == y and i[3] == x[0]:
@@ -77,9 +79,8 @@ for x in codtras:
 								d = d + 1
 								continue	
 							dis 	= dispo1[d][4]
-							contable +=1
 							while ped > 0:
-								cantidad_while += 1
+								
 								if ped < dis:
 									cont = cont + 1 
 									resul1 = pd.DataFrame({'Deno': str(i[0]), 'Centro':str(z), 'Codigo':x[0], 'Cantidad':ped, 'Fecha':dispo1[d][1], 'Lugar':str(dispo1[d][3]),'Clas':str(y) }, index= [cont])
@@ -106,72 +107,104 @@ for x in codtras:
 									else:
 										dis 	= dispo1[d][4]
 							break
-print(cantidad_while)
 
-#Calculo palet congelado REFRIGERADO y CONGELADO 
+# ================ Calculo palet congelado REFRIGERADO y CONGELADO =========================
 print("Se inicia proceso de calculo pallet Regrigerado y Congelado")
-resultado_FIFO_CD 						= resultado_FIFO_CD.to_numpy().tolist()
+resultado_FIFO_CD 				= resultado_FIFO_CD.to_numpy().tolist()
 estado 							= ["REFRIGERADO","CONGELADO"]
 cant_total_palet_REFRIGERADO 	= []
 cant_total_palet_CONGELADO 		= []
 cant_total_palet 				= []
+cantidad = 0
+
+# order contiene las sucursales T161|T162|T164|T163
 for s in tqdm(orden):
 	cant_pallet_REFRIGERADO = 0 
 	cant_pallet_CONGELADO = 0
 	kilos_pallet_REFRIGERADO = 0 
 	kilos_pallet_CONGELADO = 0  
+	# recorre los resultados del FIFO CDA [0] deno, [1] centro, [2] codigo, [3] cantidad, [4] fecha, [5] lugar, [6] clasificacion
 	for y in resultado_FIFO_CD:
+		# recorre los estados CONGELADO Y REFRIGERADO
 		for h in estado:
+			# recorre tabla material
 			for g in bd_mat:
+				# comparamos el estado (congelado o refrigerado), codigo, y sucursal 
 				if g[5] == h and y[2] == g[0] and s == y[1]:
 					tihi = 0
+					# q = cod_material, cant_paletizado
 					for q in paletizado:
 						if q[0] == y[2]:
 							tihi = q[1]
+
+					# Validar que tihi no sea 0 para evitar division por cero
 					if tihi == 0:
 						palet_mat = 0
 						kilos_mat = round(y[3] * g[9],2)
 					else:
 						palet_mat = round(y[3] / tihi,2)
 						kilos_mat = round(y[3] * g[9],2)
+					
 					pallet_por_estado = f"cant_pallet_{h}"
 					kilos_por_estado = f"kilos_pallet_{h}"
 					vars()[pallet_por_estado]= round(vars()[pallet_por_estado] + palet_mat,2)
 					vars()[kilos_por_estado]= round(vars()[kilos_por_estado] + kilos_mat,2)
 	cant_total_palet.append([s,[cant_pallet_CONGELADO,kilos_pallet_CONGELADO],[cant_pallet_REFRIGERADO,kilos_pallet_REFRIGERADO]])
-#calculo pallet Cecina
+
+# ========= calculo pallet Cecina =================================================================================================
 print("Se inicia proceso de calculo pallet Cecina")
 #print(cant_total_palet)
-for s in tqdm(cant_total_palet):
+#suma_cantidad = 0
+#suma_kilo = 0
+# recorre las sucursales en el orden T161|T162|T164|T163
+for s in cant_total_palet:
+	
 	pallet_total_cecina = 0 
-	kilos_cecina_total = 0 
+	kilos_cecina_total = 0
+
 	for y in resultado_FIFO_CD:
 		for g in bd_mat:
+			# Se busca por sector Cecina, codigo y sucursal
 			if g[8] == "Cecina" and y[2] == g[0] and s[0] == y[1]:
+				#print(f"{y[2]} : {g[9]}")
 				kilos_cecina = round(y[3]*g[9], 2)
 				kilos_cecina_total =+ round(kilos_cecina_total + kilos_cecina, 2 )
+				#suma_kilo += g[9]
+				#suma_cantidad += y[3]
+            	
 	pallet_total_cecina = round(kilos_cecina_total / kilos_por_pallet_cecina,2)			
 	s.insert(4,[pallet_total_cecina,kilos_cecina_total])
+
+#print(suma_cantidad)
+#print(suma_kilo)
+
+
 #Cantidad de pallet y kilos por sucursal
-#Calculo nuevo stock descontando traspasos
+# ============================= Calculo nuevo stock descontando traspasos =========================
 nuevostock = []
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
 dispo 			= dispo.to_numpy().tolist()
 fecha_actual = datetime.datetime(2026,2,18).date()
+
 print("Nuevo Stock descontanto Traspasos")
 for j in tqdm(dispo):
-	if j[3] =="STOCK":		
+	
+	if j[3] =="STOCK":
+			
 		cod_descuento = list(filter(lambda y: str(y[2]) == str(j[0]) and y[4] == j[1] and str(y[5]) =="STOCK" ,resultado_FIFO_CD))
 		sumadescuento = 0
 		for y in cod_descuento:
 			sumadescuento = sumadescuento + y[3]
+
 		nuevodisponible = j[4] - sumadescuento
 		if nuevodisponible > 0:
 			nuevostock.append(["deno",j[0],j[1],nuevodisponible])
+
 print("Nuevo Stock descontanto DDA 48hrs")
 descuento_DDA48 = []
-#Descuento DDA 48 
-contado_dda_48 = 0 
+
+#==========================  Descuento DDA 48  ======================================================================================
+print(f"Tamaño de la demanda 48: {len(dda_48)}")
 for h in tqdm(dda_48):
 	#print(h)
 	cont_nuevostock = 0
@@ -199,6 +232,8 @@ for h in tqdm(dda_48):
 
 descuento_DDA48_df = pd.DataFrame(descuento_DDA48)
 print("FIFO CDA terminado")
+
+# ========== Inicio de empujes a sucursales ============================================================
 print("Empujes Sucursales")
 opcion_empujes = []
 suc_empujes = ["T161","T162","T164"]
