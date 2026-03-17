@@ -15,12 +15,11 @@ porcentaje_fresco = [["T161",0.2020],["T162",0.3110],["T163",0.3030],["T164",0.1
 #porcentaje_cecina = [["T161",0.2020],["T162",0.3610],["T163",0.2520],["T164",0.1840]]
 kilos_por_pallet_cecina = 750
 print("Se inicia Proceso de FIFO CDA")
-x = datetime.datetime(2026,2,18)
+x = datetime.datetime(2026,3,16)
 #fechahoy = "26" + "." + x.strftime("%m") + "." + x.strftime("%Y")
 fechahoy = x.strftime("%d") + "." + x.strftime("%m") + "." + x.strftime("%Y")
-#archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
-#archivo         = "FIFO/FIFO " + fechahoy + " databricks.xlsx"
-archivo = r"C:\Users\ASUS UX325DEA-KG325T\Documents\FIFO 18.02.2026 databricks.xlsx"
+archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
+#archivo = r"C:\Users\ASUS UX325DEA-KG325T\Documents\FIFO 18.02.2026 databricks.xlsx"
 
 # [0] Material (vdisp_cod_material), [1] Cad./FPC (vdisp_fecaduc_feprefercons), [2] CLAS (vdisp_clasificacion), [3] lugar (vdisp_lugar), [4] Total (vdisp_total)
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE') 
@@ -184,7 +183,7 @@ for s in cant_total_palet:
 nuevostock = []
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
 dispo 			= dispo.to_numpy().tolist()
-fecha_actual = datetime.datetime(2026,2,18).date()
+fecha_actual = datetime.datetime(2026,3,16).date()
 
 print("Nuevo Stock descontanto Traspasos")
 for j in tqdm(dispo):
