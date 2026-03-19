@@ -11,15 +11,36 @@ from time import sleep
 from functools import reduce
 import numpy as np
 import math
+
+
+ruta = ""
+
+print("Parametros para la ejecucion del FIFO")
+
+opcion = int(input("Seleccione una opcion: \n 1. Ejecutar FIFO usando Databricks \n 2. Ejecutar FIFO usando Excel \n"))
+
+if opcion == 1:
+	print("Ejecutando FIFO usando Databricks")
+	ruta = "C:/Users/ASUS UX325DEA-KG325T/OneDrive - Universidad San Sebastian/Proyectos/Proyecto Agrosuper/01. Area comercial/04. Construccion/Test/FIFO/Databricks"
+elif opcion == 2:
+	print("Ejecutando FIFO usando Excel")
+	ruta = "C:/Users/ASUS UX325DEA-KG325T/OneDrive - Universidad San Sebastian/Proyectos/Proyecto Agrosuper/01. Area comercial/04. Construccion/Test/FIFO/Excel"
+
+
+print("Seleccionar fecha de ejecucion del FIFO")
+hoy = input("Ingrese la fecha de ejecucion del FIFO (formato dd-mm-yyyy): ")
+
+hoy_datetime = datetime.datetime.strptime(hoy, "%d-%m-%Y")
+
 porcentaje_fresco = [["T161",0.2020],["T162",0.3110],["T163",0.3030],["T164",0.1840]]
-#porcentaje_cecina = [["T161",0.2020],["T162",0.3610],["T163",0.2520],["T164",0.1840]]
 kilos_por_pallet_cecina = 750
+
 print("Se inicia Proceso de FIFO CDA")
-x = datetime.datetime(2026,3,17)
-#fechahoy = "26" + "." + x.strftime("%m") + "." + x.strftime("%Y")
-fechahoy = x.strftime("%d") + "." + x.strftime("%m") + "." + x.strftime("%Y")
-#archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"		
-archivo = r"C:\Users\ASUS UX325DEA-KG325T\Documents\FIFO 17.03.2026 databricks.xlsx"
+
+fechahoy = hoy_datetime.strftime("%d") + "." + hoy_datetime.strftime("%m") + "." + hoy_datetime.strftime("%Y")
+#archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"	
+	
+archivo = ruta + "/FIFO " + fechahoy + ".xlsx"
 
 # [0] Material (vdisp_cod_material), [1] Cad./FPC (vdisp_fecaduc_feprefercons), [2] CLAS (vdisp_clasificacion), [3] lugar (vdisp_lugar), [4] Total (vdisp_total)
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE') 
@@ -183,7 +204,7 @@ for s in cant_total_palet:
 nuevostock = []
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE')
 dispo 			= dispo.to_numpy().tolist()
-fecha_actual = datetime.datetime(2026,3,17).date()
+fecha_actual = hoy_datetime.date()
 
 print("Nuevo Stock descontanto Traspasos")
 for j in tqdm(dispo):
