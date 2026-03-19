@@ -13,34 +13,38 @@ import numpy as np
 import math
 
 
-ruta = ""
+ruta_archivo = ""
 
 print("Parametros para la ejecucion del FIFO")
+
+print("Seleccionar fecha de ejecucion del FIFO")
+hoy = input("Ingrese la fecha de ejecucion del FIFO (formato dd-mm-yyyy): ")
+
+if hoy is None or hoy == "":
+	print("No se ingresó una fecha válida. Se utilizará la fecha actual.")
+	hoy = datetime.datetime.now().strftime("%d-%m-%Y")
+
+
+hoy_datetime = datetime.datetime.strptime(hoy, "%d-%m-%Y")
+fechahoy = hoy_datetime.strftime("%d") + "." + hoy_datetime.strftime("%m") + "." + hoy_datetime.strftime("%Y")
 
 opcion = int(input("Seleccione una opcion: \n 1. Ejecutar FIFO usando Databricks \n 2. Ejecutar FIFO usando Excel \n"))
 
 if opcion == 1:
 	print("Ejecutando FIFO usando Databricks")
-	ruta = "C:/Users/ASUS UX325DEA-KG325T/OneDrive - Universidad San Sebastian/Proyectos/Proyecto Agrosuper/01. Area comercial/04. Construccion/Test/FIFO/Databricks"
+	ruta_archivo = f"C:/Users/ASUS UX325DEA-KG325T/OneDrive - Universidad San Sebastian/Proyectos/Proyecto Agrosuper/01. Area comercial/04. Construccion/Test/FIFO/Databricks/FIFO {fechahoy} Databricks.xlsx"
 elif opcion == 2:
 	print("Ejecutando FIFO usando Excel")
-	ruta = "C:/Users/ASUS UX325DEA-KG325T/OneDrive - Universidad San Sebastian/Proyectos/Proyecto Agrosuper/01. Area comercial/04. Construccion/Test/FIFO/Excel"
+	ruta_archivo = f"C:/Users/ASUS UX325DEA-KG325T/OneDrive - Universidad San Sebastian/Proyectos/Proyecto Agrosuper/01. Area comercial/04. Construccion/Test/FIFO/Excel/FIFO {fechahoy}.xlsx"
 
-
-print("Seleccionar fecha de ejecucion del FIFO")
-hoy = input("Ingrese la fecha de ejecucion del FIFO (formato dd-mm-yyyy): ")
-
-hoy_datetime = datetime.datetime.strptime(hoy, "%d-%m-%Y")
 
 porcentaje_fresco = [["T161",0.2020],["T162",0.3110],["T163",0.3030],["T164",0.1840]]
 kilos_por_pallet_cecina = 750
 
 print("Se inicia Proceso de FIFO CDA")
-
-fechahoy = hoy_datetime.strftime("%d") + "." + hoy_datetime.strftime("%m") + "." + hoy_datetime.strftime("%Y")
 #archivo 		= "FIFO/FIFO " + fechahoy + ".xlsx"	
 	
-archivo = ruta + "/FIFO " + fechahoy + ".xlsx"
+archivo = ruta_archivo
 
 # [0] Material (vdisp_cod_material), [1] Cad./FPC (vdisp_fecaduc_feprefercons), [2] CLAS (vdisp_clasificacion), [3] lugar (vdisp_lugar), [4] Total (vdisp_total)
 dispo 			= pd.read_excel(archivo,sheet_name='DISPONIBLE') 
@@ -455,7 +459,8 @@ writer_final.book.save(nombrearchivo_final)
 
 root = Tk()
 frameCnt = 24
-frames = [PhotoImage(file=r"\Utils\cargando.gif",format = 'gif -index %i' %(i)) for i in range(frameCnt)]
+
+frames = [PhotoImage(file="C:/Users/ASUS UX325DEA-KG325T/Documents/GitHub/C-digo-Python/FIFO/Utils/cargando.gif",format = 'gif -index %i' %(i)) for i in range(frameCnt)]
 def update(ind):
 
     frame = frames[ind]
