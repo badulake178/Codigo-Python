@@ -261,6 +261,7 @@ print("FIFO CDA terminado")
 print("Empujes Sucursales")
 opcion_empujes = []
 suc_empujes = ["T161","T162","T164"]
+
 #obetener la sumas de cajas por dias
 def obtener_suma_para_fecha(fecha, stock):
     suma = 0
@@ -268,12 +269,15 @@ def obtener_suma_para_fecha(fecha, stock):
         if fecha == q[2]:
             suma += q[3]
     return suma
+
 fechas = [datetime.datetime(fecha_actual.year, fecha_actual.month, fecha_actual.day, 0, 0) + datetime.timedelta(days=i)  for i in range(5, 9)]
 sumas = [obtener_suma_para_fecha(fecha, nuevostock) for fecha in fechas]
 fechas_col = [5,6,7,8]
 cant_empuje = []
+
 for i in fechas:
     cant_empuje.append(['T163',i])
+
 # Pantalla desplegable
 # Función para manejar el cambio de estado de un checkbox
 def checkbox_changed(row, col):
@@ -321,6 +325,8 @@ for row, suc in enumerate(suc_empujes):
         checkboxes[variable_name].grid(row=row+3, column=col+1, columnspan=1)
 #print(checkboxes)
 root.mainloop()
+
+#====================== FIFO part. 2 Empujes a sucursales ============================================================
 #calculo de cuanto empujar por material a cada sucursal 
 empuje_total = []
 cod_empujes = list(set(codigo_empuje[1] for codigo_empuje in nuevostock))
@@ -331,9 +337,13 @@ def obtener_suma_para_fecha_por_codigo(fecha,codigo, stock):
         if codigo == q[1] and fecha == q[2]:
         	suma_fecha = suma_fecha + q[3]
     return [q[0],codigo,fecha,suma_fecha]
+
 cod_fecha_cant = []
 emp_centro_nuevos_porce = []
 emp_final = []
+
+# =================== CREAR LISTA DE EMPUJE ===============================
+print(f"lista de fechas: {len(fechas)}")
 for l in fechas:
 	#obtener la Cantidad por la fecha l de las lista "fechas" por codigo
 	cod_fecha_cant = [obtener_suma_para_fecha_por_codigo(l,cod, nuevostock)for cod in cod_empujes]
