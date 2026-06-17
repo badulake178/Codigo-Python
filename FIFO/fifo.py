@@ -328,9 +328,15 @@ root.mainloop()
 
 #====================== FIFO part. 2 Empujes a sucursales ============================================================
 #calculo de cuanto empujar por material a cada sucursal 
+
 empuje_total = []
 cod_empujes = list(set(codigo_empuje[1] for codigo_empuje in nuevostock))
-#print(cod_empujes)
+
+# Filtramos comparando el formato YYYY-MM-DD
+cantidades = sum(fila[3] for fila in nuevostock if fila[2].strftime('%Y-%m-%d') == "2026-04-25")
+
+print(f"La cantidad de 2026-04-25: {cantidades}") # Salida: [0]
+
 def obtener_suma_para_fecha_por_codigo(fecha,codigo, stock):
     suma_fecha = 0
     for q in stock:
@@ -343,12 +349,13 @@ emp_centro_nuevos_porce = []
 emp_final = []
 
 # =================== CREAR LISTA DE EMPUJE ===============================
-print(f"lista de fechas: {len(fechas)}")
 for l in fechas:
 	#obtener la Cantidad por la fecha l de las lista "fechas" por codigo
 	cod_fecha_cant = [obtener_suma_para_fecha_por_codigo(l,cod, nuevostock)for cod in cod_empujes]
+	
 	#eliminar todos los elementos que la suma para esta fecha sean 0
 	cod_fecha_cant_filtrada = [elem for elem in cod_fecha_cant if elem[3] != 0]
+	print(f"fecha: {l} - cantidad: {len(cod_fecha_cant_filtrada)}")
 	#esta es la lita que contiene los centros que se van a empujar con la fecha l de fechas
 	centro_fecha_emp = [elem for elem in cant_empuje if elem[1] == l ]
 	#se crea una nueva lista que almacene el porcentaje original de envio a las surusales 
@@ -363,7 +370,7 @@ for l in fechas:
 	    suma2 += elemento[2]
 	for i in range(len(centro_fecha_porcentaje_emp)):
 		centro_fecha_porcentaje_emp[i][2] = round(centro_fecha_porcentaje_emp[i][2] / suma2, 3)
-	#print(centro_fecha_porcentaje_emp)
+
 	#recorrer los centros con sus porcentaje por cada fecha
 	for r in centro_fecha_porcentaje_emp:
 		#recorrer por la fecha los codigos y sus cantidad disponibles para empujar
@@ -377,7 +384,7 @@ for l in emp_final:
 	for k in bd_mat:
 		if l[2] == k[0]:
 			l[0] = str(k[11] + "_" + l[1])
-			#print("entra")
+			
 
 emp_final_df = pd.DataFrame(emp_final)
 print("Se inicia Proceso de FIFO Sucursales Satelites")
@@ -451,7 +458,7 @@ emp_final_df.columns = ["Deno","Centro","Codigo","Cantidad","Fecha","Lugar"]
 print("Se crea Archivo Excel")
 #nombrearchivo_final = "Archivo Final " + fechahoy + ".xlsx"
 
-nombrearchivo_final = os.path.join("FIFO", "Archivo Final " + fechahoy + ".xlsx")
+nombrearchivo_final = os.path.join("Archivos Finales", "Archivo Final " + fechahoy + ".xlsx")
 
 # Crear la carpeta FIFO si no existe
 if not os.path.exists("FIFO"):
