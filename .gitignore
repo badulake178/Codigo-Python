@@ -1,1 +1,4 @@
 VirtualEnv/venv
+VirtualEnv/venv/Lib
+FIFO/venv
+Python con Excel/venv
